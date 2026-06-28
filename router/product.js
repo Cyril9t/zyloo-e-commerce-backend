@@ -1,22 +1,27 @@
-import express from "express";
+import express, { json } from "express";
 import prisma from "../prismaConfig/prisma.js";
-import { warnOnce } from "../generated/prisma/runtime/client.js";
 
 const router = express.Router();
 
 router.post('/upload', async (req, res) => {
+
     try {
 
         const { name, price, description, stock, image, category, tagName, id } = req.body
 
         if (!name || !price || !description || !stock || !image) return res.status(400).json({ Message: "Missing A field" })
+        const user = req.user;
+
+        const userRole = user.role === "ADMIN";
+
+        if (!userRole) return res.status(401).json({ Message: "Only admin can upload products" });
 
         const product = await prisma.product.create({
             data: {
                 id: crypto.randomUUID(), name: name, price: Number(price), description, stock: Number(stock), image, category,
 
                 user: {
-                    connect: { id: id }
+                    connect: { id: user.id }
 
                 },
                 category: {
@@ -24,7 +29,6 @@ router.post('/upload', async (req, res) => {
                         {
                             where: { name: category },
                             create: {
-                                id: crypto.randomUUID(),
                                 name: category
                             }
                         }
@@ -34,8 +38,9 @@ router.post('/upload', async (req, res) => {
                     connectOrCreate: [
                         {
                             where: { name: tagName },
+
                             create: {
-                                id: crypto.randomUUID(),
+
                                 name: tagName
                             }
                         }
@@ -64,7 +69,9 @@ router.post('/upload', async (req, res) => {
 
 router.get("/products", async (req, res) => {
     try {
-        const pro = await prisma.product.findMany({
+
+
+        const product = await prisma.product.findMany({
             include: {
                 tag: true,
                 category: true,
@@ -76,7 +83,8 @@ router.get("/products", async (req, res) => {
             }
         })
 
-        res.json(pro)
+        res.status(200).json({ Message: "All available product", product })
+
     } catch (err) {
         console.log(err)
     }

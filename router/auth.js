@@ -1,13 +1,14 @@
 import express from "express"
 import prisma from "../prismaConfig/prisma.js";
 import { hashPassword, comparePassword, userToken, verifyToken } from "../lib/userAuth.js";
+import { Role } from "../generated/prisma/index.js";
 
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
     try {
 
-        const { fullName, password, email } = req.body; 76
+        const { fullName, password, email } = req.body;
 
         if (!fullName || !password || !email) return res.status(400).json({ Message: "Input fields are required " });
 
@@ -49,7 +50,7 @@ router.post("/login", async (req, res) => {
 
         if (!compare) return res.status(400).json({ Message: "Incorrect credentials" })
 
-        const token = await userToken({ id: existing.id, name: existing.fullName, email: existing.email });
+        const token = await userToken({ id: existing.id, name: existing.fullName, email: existing.email, role: existing.role });
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -58,9 +59,9 @@ router.post("/login", async (req, res) => {
             maxAge: 3600000
         })
 
-        const decoded = await verifyToken(token);
 
-        res.status(200).json({ Message: "Login success", decoded });
+
+        res.status(200).json({ Message: "Login success" });
 
 
     } catch (error) {
