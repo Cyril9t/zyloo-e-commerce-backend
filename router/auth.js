@@ -1,16 +1,20 @@
 import express from "express"
 import prisma from "../prismaConfig/prisma.js";
 import { hashPassword, comparePassword, userToken, verifyToken } from "../lib/userAuth.js";
-import { Role } from "../generated/prisma/index.js";
+import { registerSchema, loginSchema } from "../lib/validate.js";
 
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
     try {
 
-        const { fullName, password, email } = req.body;
+        const data = registerSchema.safeParse(req.body);
 
-        if (!fullName || !password || !email) return res.status(400).json({ Message: "Input fields are required " });
+        if (!data.success) return res.status(400).json({ Error: data.error.flatten.fieldErrors });
+
+        const { fullName, password, email } = data.data;
+
+        // if (!fullName || !password || !email) return res.status(400).json({ Message: "Input fields are required " });
 
         const existing = await prisma.user.findUnique({
             where: { email }
@@ -36,9 +40,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
 
-        const { email, password } = req.body;
+        const validate = loginSchema.safeParse(req.body);
 
-        if (!email | !password) return res.status(400).json({ Message: "Input fields are required " });
+        const { email, password } = VarDate.data;
+
+        if (!validate.success) return res.status(400).json({ Error: data.error.flatten.fieldErrors });
+
+        // if (!email | !password) return res.status(400).json({ Message: "Input fields are required " });
 
         const existing = await prisma.user.findUnique({
             where: { email }

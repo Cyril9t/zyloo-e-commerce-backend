@@ -2,8 +2,17 @@ import express, { urlencoded } from "express"
 import prisma from "./prismaConfig/prisma.js";
 import register from "./router/auth.js";
 import product from "./router/product.js";
+import cors from "cors";
+
 import productMiddleware from "./middlewares/productMiddleware.js"
+import { tr } from "zod/v4/locales";
 const app = express();
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true
+    })
+)
 
 const PORT = 8000;
 
