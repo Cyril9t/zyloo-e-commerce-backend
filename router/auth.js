@@ -10,7 +10,7 @@ router.post("/register", async (req, res) => {
 
         const data = registerSchema.safeParse(req.body);
 
-        if (!data.success) return res.status(400).json({ Error: data.error.flatten.fieldErrors });
+        if (!data.success) return res.status(200).json({ Error: data.error.flatten().fieldErrors });
 
         const { fullName, password, email } = data.data;
 
@@ -20,7 +20,10 @@ router.post("/register", async (req, res) => {
             where: { email }
         })
 
-        if (existing) return res.status(409).json({ Message: "User already exist" });
+        if (existing) {
+            console.log("Use")
+            return res.status(200).json({ Message: "User already exist" });
+        }
 
         const hash = await hashPassword(password);
 
@@ -42,9 +45,9 @@ router.post("/login", async (req, res) => {
 
         const validate = loginSchema.safeParse(req.body);
 
-        const { email, password } = VarDate.data;
+        const { email, password } = validate.data;
 
-        if (!validate.success) return res.status(400).json({ Error: data.error.flatten.fieldErrors });
+        if (!validate.success) return res.status(400).json({ Error: validate.error.flatten().fieldErrors });
 
         // if (!email | !password) return res.status(400).json({ Message: "Input fields are required " });
 
@@ -52,11 +55,11 @@ router.post("/login", async (req, res) => {
             where: { email }
         })
 
-        if (!existing) return res.status(404).json({ Message: "User not exist" });
+        if (!existing) return res.status(200).json({ Message: "User not exist" });
 
         const compare = await comparePassword(password, existing.password);
 
-        if (!compare) return res.status(400).json({ Message: "Incorrect credentials" })
+        if (!compare) return res.status(200).json({ Message: "Incorrect credentials" })
 
         const token = await userToken({ id: existing.id, name: existing.fullName, email: existing.email, role: existing.role });
 
