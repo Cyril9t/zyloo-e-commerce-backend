@@ -12,7 +12,7 @@ router.post("/register", async (req, res) => {
 
         if (!data.success) return res.status(200).json({ Error: data.error.flatten().fieldErrors });
 
-        const { fullName, password, email } = data.data;
+        const { firstName, lastName, password, email } = data.data;
 
         // if (!fullName || !password || !email) return res.status(400).json({ Message: "Input fields are required " });
 
@@ -21,7 +21,6 @@ router.post("/register", async (req, res) => {
         })
 
         if (existing) {
-            console.log("Use")
             return res.status(200).json({ Message: "User already exist" });
         }
 
@@ -29,11 +28,11 @@ router.post("/register", async (req, res) => {
 
         const user = await prisma.user.create({
             data: {
-                fullName, password: hash, email
+                firstName, lastName, password: hash, email
             }
         });
 
-        res.status(201).json({ Message: "Registration successful", user });
+        res.status(201).json({ Message: "Registration successful" });
 
     } catch (error) {
         console.log(error, "err side")
@@ -51,18 +50,20 @@ router.post("/login", async (req, res) => {
 
         // if (!email | !password) return res.status(400).json({ Message: "Input fields are required " });
 
-        const existing = await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: { email }
         })
 
-        if (!existing) return res.status(200).json({ Message: "User not exist" });
+        if (!user) return res.status(404).json({ Error: "User not exist" });
 
-        const compare = await comparePassword(password, existing.password);
+        const compare = await comparePassword(password, user.password);
 
-        if (!compare) return res.status(200).json({ Message: "Incorrect credentials" })
+        if (!compare) return res.status(404).json({ Message: "Incorrect credentials" })
 
-        const token = await userToken({ id: existing.id, name: existing.fullName, email: existing.email, role: existing.role });
-
+        const token = await userToken({ id: user.id, name: user.firstName, email: user.email, role: user.role });
+        const userInfo = {
+            id: user.id, name: user.firstName, email: user.email, role: user.role
+        }
         res.cookie("token", token, {
             httpOnly: true,
             secure: true,
@@ -70,15 +71,33 @@ router.post("/login", async (req, res) => {
             maxAge: 3600000
         })
 
-
-
-        res.status(200).json({ Message: "Login success" });
-
+        res.status(200).json({ Message: "Login success", userInfo });
 
     } catch (error) {
         console.log(error);
         res.status(500).json({ Message: "Internal error" });
     }
 })
+
+router.post("/logout", async (req, res) => {
+    try {
+
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            expires: new Date(Date.now()),
+        })
+
+        res.status(200).json({ Message: "Logged out Successfully" })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ Message: "Internal Error" })
+    }
+})
+
+
+
 
 export default router;

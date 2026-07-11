@@ -1,12 +1,13 @@
 import { verifyToken } from "../lib/userAuth.js";
 
-const productMiddleware = async (req, res, next) => {
+const middleware = async (req, res, next) => {
     try {
         const cookie = req.headers.cookie;
 
         if (!cookie) {
-            return res.status(401).json({
-                message: "No cookies found",
+            return res.json({
+                Message: "No cookies found",
+                cookie: !!cookie
             });
         }
 
@@ -41,4 +42,4 @@ const productMiddleware = async (req, res, next) => {
     }
 };
 
-export default productMiddleware
+export default middleware
