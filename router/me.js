@@ -11,8 +11,6 @@ router.get("/me", async (req, res) => {
 
         const email = decoded.email
 
-        console.log(email);
-
         if (!email) return res.status(401).json({ Message: "Unauthorized" })
 
         const user = await prisma.user.findUnique({
