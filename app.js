@@ -5,6 +5,7 @@ import register from "./router/auth.js";
 import product from "./router/product.js";
 import middleware from "./middlewares/middleware.js"
 import me from "./router/me.js";
+import totalUser from "./router/users.js";
 const app = express();
 app.use(
     cors({
@@ -22,6 +23,8 @@ app.use(express.json());
 app.use("/auth", register);
 
 app.use("/user", middleware, me)
+
+app.use("/users", totalUser)
 
 app.use("/product", middleware, product);
 

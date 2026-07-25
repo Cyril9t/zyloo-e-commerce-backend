@@ -16,9 +16,10 @@ const middleware = async (req, res, next) => {
             .find((v) => v.startsWith("token="));
 
         if (!tokenCookie) {
-            return res.status(401).json({
+            res.status(401).json({
                 message: "Token not found",
             });
+            return
         }
 
         const token = tokenCookie.split("=")[1];
