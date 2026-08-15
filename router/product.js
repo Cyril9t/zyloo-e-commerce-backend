@@ -25,9 +25,9 @@ router.post('/upload', uploads.array("images"), async (req, res) => {
         if (!uploadedImages) return res.json({ Message: "Error while uploading" })
         const imageUrls = uploadedImages.map((img) => (img.secure_url));
 
-        const { name, price, description, stock, category, tagName, id } = productInfo
+        const { name, description, category, tagName, id } = productInfo
 
-        if (!name || !price || !description || !stock) return res.status(400).json({ Message: "Missing A field" })
+        if (!name || !description) return res.status(400).json({ Message: "Missing A field" })
         const user = req.user;
 
         const userRole = user.role === "ADMIN";
@@ -36,7 +36,7 @@ router.post('/upload', uploads.array("images"), async (req, res) => {
 
         const product = await prisma.product.create({
             data: {
-                id: crypto.randomUUID(), name: name, price: Number(price), description, stock: Number(stock), category,
+                id: crypto.randomUUID(), name: name, description, category,
 
                 user: {
                     connect: { id: user.id }
@@ -59,7 +59,7 @@ router.post('/upload', uploads.array("images"), async (req, res) => {
                         }
                     ]
                 },
-                tag: {
+                tags: {
                     connectOrCreate: [
                         {
                             where: {
@@ -74,7 +74,7 @@ router.post('/upload', uploads.array("images"), async (req, res) => {
                     ]
                 }
             }, include: {
-                tag: true,
+                tags: true,
                 category: true,
                 images: true,
                 user: {
@@ -100,9 +100,15 @@ router.get("/products", async (req, res) => {
 
         const product = await prisma.product.findMany({
             include: {
-                tag: true,
+                tags: true,
                 category: true,
                 images: true,
+                productItems: {
+                    take: 1,
+                    orderBy: {
+                        price: 'asc'
+                    }
+                },
                 user: {
                     select: {
                         firstName: true
@@ -111,10 +117,37 @@ router.get("/products", async (req, res) => {
             }
         })
 
+
         res.status(200).json({ Message: "All available product", product })
 
     } catch (err) {
         console.log(err)
+    }
+})
+
+router.get("/productsDetails/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        if (!id) {
+            console.log(id)
+            res.json({ Message: "No Product Id provided for route params" })
+            return
+        }
+
+        const product = await prisma.product.findUnique({
+            where: { id: id },
+            include: {
+                productItems: true,
+                tags: true,
+                category: true,
+                images: true,
+            }
+        })
+
+        res.json({ Message: "ProductDetails", ProductDetails: product })
+    } catch (error) {
+        console.log(error)
+        res.json({ Message: "Internal Error" })
     }
 })
 

@@ -17,8 +17,14 @@ enum Role {
   ADMIN
 }
 
+enum Status {
+  PROCESSING
+  CANCELED
+  SUCCESS
+}
+
 model User {
-  id String @id @unique @default(uuid())
+  id String @id @default(uuid())
 
   firstName String
   lastName  String
@@ -26,39 +32,147 @@ model User {
   email    String @unique
   password String
 
-  role     Role      @default(CUSTOMER)
-  products Product[]
+  role Role @default(CUSTOMER)
+
+  cart      Cart?
+  createdAt DateTime  @default(now())
+  products  Product[]
+
+  orders Orders[]
 }
 
 model Tag {
-  id      String    @id @unique @default(uuid())
-  name    String    @unique
-  product Product[]
+  id   String @id @default(uuid())
+  name String @unique
+
+  products Product[]
 }
 
-model category {
-  id      String    @id @unique @default(uuid())
-  name    String    @unique
-  product Product[]
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+
+  products Product[]
 }
 
 model Product {
-  id          String     @id @default(uuid())
-  price       Int
+  id String @id @default(uuid())
+
   name        String
-  userId      String
   description String
-  stock       Int
-  category    category[]
-  tag         Tag[]
-  images      Images[]
-  user        User       @relation(fields: [userId], references: [id])
-  createdAt   DateTime   @default(now())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id])
+
+  category Category[]
+
+  tags Tag[]
+
+  images Image[]
+
+  productItems ProductItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Images {
-  id            String  @id @default(uuid())
-  productID     String
+model Image {
+  id String @id @default(uuid())
+
   productImages String
-  product       Product @relation(fields: [productID], references: [id])
+
+  productId String
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model ProductItem {
+  id String @id @default(uuid())
+
+  productId String
+
+  price Int
+
+  stock Int
+
+  color String?
+
+  image String?
+
+  size String?
+
+  product Product @relation(fields: [productId], references: [id])
+
+  cartItems CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id String @id @default(uuid())
+
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id])
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id String @id @default(uuid())
+
+  cartId String
+
+  productItemId String
+
+  quantity Int
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productItem ProductItem @relation(fields: [productItemId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model CheckoutAddress {
+  id            String @id @default(ulid())
+  orderId       String
+  email         String
+  firstName     String
+  lastName      String
+  StreetAddress String
+  city          String
+  state         String
+  postalCode    Int
+  paymentMethod String
+  OrderItem     Orders @relation(fields: [orderId], references: [id])
+}
+
+model Orders {
+  id        String            @id @default(uuid())
+  orderid   String
+  userId    String
+  total     Int
+  status    Status            @default(PROCESSING)
+  orderDate DateTime          @default(now())
+  user      User              @relation(fields: [userId], references: [id])
+  OderItem  OrderItems[]
+  Address   CheckoutAddress[]
+}
+
+model OrderItems {
+  id       String @id @default(uuid())
+  orderId  String
+  name     String
+  color    String
+  image    String
+  size     String
+  quantity Int
+  price    Int
+  order    Orders @relation(fields: [orderId], references: [id])
 }

@@ -15,7 +15,6 @@ router.get("/me", async (req, res) => {
 
         const user = await prisma.user.findUnique({
             where: { email }
-
         })
 
         res.status(200).json({ Message: "User", decoded })

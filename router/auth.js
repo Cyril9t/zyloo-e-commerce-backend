@@ -28,7 +28,7 @@ router.post("/register", async (req, res) => {
 
         const user = await prisma.user.create({
             data: {
-                firstName, lastName, password: hash, email
+                firstName, lastName, password: hash, email, role: "ADMIN"
             }
         });
 
@@ -60,7 +60,7 @@ router.post("/login", async (req, res) => {
 
         if (!compare) return res.status(404).json({ Message: "Incorrect credentials" })
 
-        const token = await userToken({ id: user.id, name: user.firstName, email: user.email, role: user.role });
+        const token = await userToken({ id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role });
         const userInfo = {
             id: user.id, name: user.firstName, email: user.email, role: user.role
         }

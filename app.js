@@ -6,6 +6,11 @@ import product from "./router/product.js";
 import middleware from "./middlewares/middleware.js"
 import me from "./router/me.js";
 import totalUser from "./router/users.js";
+import cart from "./router/cart.js";
+import productItem from "./router/product-item.js";
+import checkOut from "./router/CheckOut.js";
+import Orders from "./router/Orders.js";
+
 const app = express();
 app.use(
     cors({
@@ -27,5 +32,13 @@ app.use("/user", middleware, me)
 app.use("/users", totalUser)
 
 app.use("/product", middleware, product);
+
+app.use("/cart", middleware, cart)
+
+app.use("/product", middleware, productItem)
+
+app.use("/checkOut", middleware, checkOut)
+
+app.use("/Order", middleware, Orders)
 
 app.listen(PORT, () => console.log(`server side at http://localhost:${PORT}`));
