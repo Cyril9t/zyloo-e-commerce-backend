@@ -19,6 +19,7 @@ enum Role {
 
 enum Status {
   PROCESSING
+  PAID
   CANCELED
   SUCCESS
 }
@@ -154,15 +155,16 @@ model CheckoutAddress {
 }
 
 model Orders {
-  id        String            @id @default(uuid())
-  orderid   String
-  userId    String
-  total     Int
-  status    Status            @default(PROCESSING)
-  orderDate DateTime          @default(now())
-  user      User              @relation(fields: [userId], references: [id])
-  OderItem  OrderItems[]
-  Address   CheckoutAddress[]
+  id               String            @id @default(uuid())
+  orderid          String
+  userId           String
+  paymentReference String?            @unique
+  total            Int
+  status           Status            @default(PROCESSING)
+  orderDate        DateTime          @default(now())
+  user             User              @relation(fields: [userId], references: [id])
+  OderItem         OrderItems[]
+  Address          CheckoutAddress[]
 }
 
 model OrderItems {
