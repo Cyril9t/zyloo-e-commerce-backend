@@ -10,6 +10,7 @@ import cart from "./router/cart.js";
 import productItem from "./router/product-item.js";
 import checkOut from "./router/CheckOut.js";
 import Orders from "./router/Orders.js";
+import verify from "./paymentGateWay/verifyPayment.js"
 
 const app = express();
 app.use(
@@ -40,5 +41,7 @@ app.use("/product", middleware, productItem)
 app.use("/checkOut", middleware, checkOut)
 
 app.use("/Order", middleware, Orders)
+app.use("/Payment", middleware, verify)
+
 
 app.listen(PORT, () => console.log(`server side at http://localhost:${PORT}`));

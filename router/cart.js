@@ -182,20 +182,19 @@ router.delete("/deleteCart/:id", async (req, res) => {
 router.delete("/deleteCarts", async (req, res) => {
     try {
         const user = req.user;
+
         const findCart = await prisma.cart.findUnique({
             where: { userId: user.id }
         })
 
         if (!findCart) return res.json({ Message: "No cart found" })
 
-
         const deleteItem = await prisma.cartItem.deleteMany({
             where: { cartId: findCart.id }
         })
 
-
-
         res.json({ Message: "Order Placed", deleteItem })
+
     } catch (error) {
         console.log(error)
         res.status(500).json({ Message: "Internal Error" })

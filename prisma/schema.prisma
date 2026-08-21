@@ -155,16 +155,16 @@ model CheckoutAddress {
 }
 
 model Orders {
-  id               String            @id @default(uuid())
-  orderid          String
-  userId           String
-  paymentReference String?            @unique
-  total            Int
-  status           Status            @default(PROCESSING)
-  orderDate        DateTime          @default(now())
-  user             User              @relation(fields: [userId], references: [id])
-  OderItem         OrderItems[]
-  Address          CheckoutAddress[]
+  id        String            @id @default(uuid())
+  orderid   String
+  userId    String
+  reference String?           @unique
+  total     Int
+  status    Status            @default(PROCESSING)
+  orderDate DateTime          @default(now())
+  user      User              @relation(fields: [userId], references: [id])
+  OderItem  OrderItems[]
+  Address   CheckoutAddress[]
 }
 
 model OrderItems {
@@ -177,4 +177,22 @@ model OrderItems {
   quantity Int
   price    Int
   order    Orders @relation(fields: [orderId], references: [id])
+}
+
+model PendingPayment {
+  id            String   @id @default(cuid())
+  reference     String   @unique
+  userId        String
+  email         String
+  firstName     String
+  lastName      String
+  StreetAddress String
+  city          String
+  state         String
+  postalCode    Int
+  paymentMethod String
+  total         Int
+  items         Json
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
 }
