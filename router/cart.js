@@ -78,9 +78,8 @@ router.get("/cartsItem", async (req, res) => {
                 productItem: {
                     include: {
                         product: {
-                            select: {
-                                name: true,
-                                description: true
+                            include: {
+                                tags: true
                             }
                         },
 

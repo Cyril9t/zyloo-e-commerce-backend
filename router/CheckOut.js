@@ -162,6 +162,7 @@ router.post("/checkOuts", async (req, res) => {
             !postalCode ||
             !paymentMethod
         ) {
+            console.log("All checkout fields are required")
             return res.status(400).json({
                 Message: "All checkout fields are required"
             });
@@ -181,16 +182,18 @@ router.post("/checkOuts", async (req, res) => {
             });
 
             if (!productItem) {
+                console.log("Product item not found")
                 return res.status(404).json({
                     Message: "Product item not found"
                 });
             }
 
-            if (productItem.stock < i.quantity) {
-                return res.status(400).json({
-                    Message: `${productItem.product.name} is out of stock`
-                });
-            }
+            // if (productItem.stock < i.quantity) {
+            //     console.log(`${productItem.product.name} is out of stock`)
+            //     return res.status(400).json({
+            //         Message: `${productItem.product.name} is out of stock`
+            //     });
+            // }
 
             const subtotal = productItem.price * i.quantity;
             const discount = subtotal > 300 ? 30 : 0;

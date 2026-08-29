@@ -78,7 +78,7 @@ router.post("/verifyPayment", async (req, res) => {
 
                         if (
                             response.data.amount !==
-                            pendingPayment.total * 100
+                            pendingPayment.total
                         ) {
                             return res.status(400).json({
                                 Message:

@@ -54,7 +54,7 @@ router.post("/login", async (req, res) => {
             where: { email }
         })
 
-        if (!user) return res.status(404).json({ Error: "User not exist" });
+        if (!user) return res.status(404).json({ Message: "User not exist" });
 
         const compare = await comparePassword(password, user.password);
 
