@@ -67,7 +67,7 @@ router.post("/login", async (req, res) => {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-            maxAge: 3600000
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
         res.status(200).json({ Message: "Login success", userInfo });
@@ -116,7 +116,7 @@ router.get("/google/callback", passport.authenticate("google", {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-            maxAge: 3600000
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
         res.redirect("http://localhost:5173/")
