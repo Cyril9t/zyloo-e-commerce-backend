@@ -2,6 +2,7 @@ import express from "express"
 import prisma from "../prismaConfig/prisma.js";
 import { hashPassword, comparePassword, userToken, verifyToken } from "../lib/userAuth.js";
 import { registerSchema, loginSchema } from "../lib/validate.js";
+import passport from "passport";
 
 const router = express.Router();
 
@@ -13,8 +14,6 @@ router.post("/register", async (req, res) => {
         if (!data.success) return res.status(200).json({ Error: data.error.flatten().fieldErrors });
 
         const { firstName, lastName, password, email } = data.data;
-
-        // if (!fullName || !password || !email) return res.status(400).json({ Message: "Input fields are required " });
 
         const existing = await prisma.user.findUnique({
             where: { email }
@@ -97,7 +96,32 @@ router.post("/logout", async (req, res) => {
     }
 })
 
+router.get("/google", passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+})
+);
 
+router.get("/google/callback", passport.authenticate("google", {
+    session: false,
+    failureRedirect: "http://localhost:5173/login"
+}),
+    async (req, res) => {
+        const CreateUser = req.user
+        console.log(req.user, "Login")
+
+        const token = await userToken({ id: CreateUser.id, firstName: CreateUser.firstName, lastName: CreateUser.lastName, email: CreateUser.email, role: CreateUser.role });
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 3600000
+        })
+
+        res.redirect("http://localhost:5173/")
+    }
+)
 
 
 export default router;

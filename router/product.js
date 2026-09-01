@@ -129,7 +129,7 @@ router.get("/productsDetails/:id", async (req, res) => {
     try {
         const { id } = req.params
         if (!id) {
-            console.log(id)
+
             res.json({ Message: "No Product Id provided for route params" })
             return
         }

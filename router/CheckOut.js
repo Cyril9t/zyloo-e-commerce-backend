@@ -149,6 +149,7 @@ router.post("/checkOuts", async (req, res) => {
         } = req.body;
 
 
+
         if (
             !item ||
             !Array.isArray(item) ||
@@ -188,12 +189,12 @@ router.post("/checkOuts", async (req, res) => {
                 });
             }
 
-            // if (productItem.stock < i.quantity) {
-            //     console.log(`${productItem.product.name} is out of stock`)
-            //     return res.status(400).json({
-            //         Message: `${productItem.product.name} is out of stock`
-            //     });
-            // }
+            if (productItem.stock < i.quantity) {
+                console.log(`${productItem.product.name} is out of stock`)
+                return res.status(400).json({
+                    Message: `${productItem.product.name} is out of stock`
+                });
+            }
 
             const subtotal = productItem.price * i.quantity;
             const discount = subtotal > 300 ? 30 : 0;
@@ -266,7 +267,7 @@ router.post("/checkOuts", async (req, res) => {
                                 state,
                                 postalCode,
                                 paymentMethod,
-                                total,
+                                total: amount,
                                 items: item,
                                 status: "PENDING"
                             }

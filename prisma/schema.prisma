@@ -28,10 +28,10 @@ model User {
   id String @id @default(uuid())
 
   firstName String
-  lastName  String
+  lastName  String?
 
-  email    String @unique
-  password String
+  email    String  @unique
+  password String?
 
   role Role @default(CUSTOMER)
 

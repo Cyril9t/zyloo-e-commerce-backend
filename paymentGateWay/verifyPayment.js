@@ -93,144 +93,157 @@ router.post("/verifyPayment", async (req, res) => {
                         );
 
 
-                        const result =
-                            await prisma.$transaction(
-                                async (tx) => {
-
-                                    const order =
-                                        await tx.orders.create({
-                                            data: {
-                                                orderid:
-                                                    `ZYL-${code}`,
-
-                                                total:
-                                                    pendingPayment.total,
-
-                                                user: {
-                                                    connect: {
-                                                        id:
-                                                            user.id
-                                                    }
-                                                }
-                                            }
-                                        });
-
-
-                                    await tx.checkoutAddress.create({
+                        const result = await prisma.$transaction(
+                            async (tx) => {
+                                const order =
+                                    await tx.orders.create({
                                         data: {
-                                            email:
-                                                pendingPayment.email,
+                                            orderid:
+                                                `ZYL-${code}`,
 
-                                            firstName:
-                                                pendingPayment.firstName,
+                                            total:
+                                                pendingPayment.total,
 
-                                            lastName:
-                                                pendingPayment.lastName,
-
-                                            StreetAddress:
-                                                pendingPayment.StreetAddress,
-
-                                            city:
-                                                pendingPayment.city,
-
-                                            state:
-                                                pendingPayment.state,
-
-                                            postalCode:
-                                                pendingPayment.postalCode,
-
-                                            paymentMethod:
-                                                pendingPayment.paymentMethod,
-
-                                            OrderItem: {
+                                            user: {
                                                 connect: {
                                                     id:
-                                                        order.id
+                                                        user.id
                                                 }
                                             }
                                         }
                                     });
 
 
-                                    await tx.orderItems.createMany({
-                                        data:
-                                            pendingPayment.items.map(
-                                                (i) => ({
-                                                    name:
-                                                        i.productItem
-                                                            .product
-                                                            .name,
+                                await tx.checkoutAddress.create({
+                                    data: {
+                                        email:
+                                            pendingPayment.email,
 
-                                                    color:
-                                                        i.productItem
-                                                            .color,
+                                        firstName:
+                                            pendingPayment.firstName,
 
-                                                    image:
-                                                        i.productItem
-                                                            .image,
+                                        lastName:
+                                            pendingPayment.lastName,
 
-                                                    size:
-                                                        i.productItem
-                                                            .size,
+                                        StreetAddress:
+                                            pendingPayment.StreetAddress,
 
-                                                    price:
-                                                        i.productItem
-                                                            .price,
+                                        city:
+                                            pendingPayment.city,
 
-                                                    quantity:
-                                                        i.quantity,
+                                        state:
+                                            pendingPayment.state,
 
-                                                    orderId:
-                                                        order.id
-                                                })
-                                            )
-                                    });
+                                        postalCode:
+                                            pendingPayment.postalCode,
 
+                                        paymentMethod:
+                                            pendingPayment.paymentMethod,
 
-                                    const cart =
-                                        await tx.cart.findUnique({
-                                            where: {
-                                                userId:
-                                                    user.id
-                                            }
-                                        });
-
-
-                                    if (cart) {
-
-                                        await tx.cartItem.deleteMany({
-                                            where: {
-                                                cartId:
-                                                    cart.id
-                                            }
-                                        });
-
-                                        await tx.cart.delete({
-                                            where: {
+                                        OrderItem: {
+                                            connect: {
                                                 id:
-                                                    cart.id
+                                                    order.id
                                             }
-                                        });
+                                        }
                                     }
+                                });
 
 
-                                    await tx.pendingPayment.update({
+                                await tx.orderItems.createMany({
+                                    data:
+                                        pendingPayment.items.map(
+                                            (i) => ({
+
+                                                name:
+                                                    i.productItem
+                                                        .product
+                                                        .name,
+
+                                                color:
+                                                    i.productItem
+                                                        .color,
+
+                                                image:
+                                                    i.productItem
+                                                        .image,
+
+                                                size:
+                                                    i.productItem
+                                                        .size,
+
+                                                price:
+                                                    i.productItem
+                                                        .price,
+
+                                                quantity:
+                                                    i.quantity,
+
+                                                orderId:
+                                                    order.id
+                                            })
+                                        )
+                                });
+
+
+                                const cart =
+                                    await tx.cart.findUnique({
                                         where: {
-                                            reference
-                                        },
-
-                                        data: {
-                                            status: "PAID"
+                                            userId:
+                                                user.id
                                         }
                                     });
 
-                                    return order;
-                                }
-                            );
 
+                                if (cart) {
+
+                                    await tx.cartItem.deleteMany({
+                                        where: {
+                                            cartId:
+                                                cart.id
+                                        }
+                                    });
+
+                                    await tx.cart.delete({
+                                        where: {
+                                            id:
+                                                cart.id
+                                        }
+                                    });
+                                }
+
+
+                                await tx.pendingPayment.update({
+                                    where: {
+                                        reference
+                                    },
+
+                                    data: {
+                                        status: "PAID"
+                                    }
+                                });
+
+                                return order;
+                            }
+                        );
+
+                        const decreaseStock = await Promise.all(
+                            pendingPayment.items.map((item) =>
+                                prisma.productItem.update({
+                                    where: {
+                                        id: item.productItemId,
+                                    },
+                                    data: {
+                                        stock: {
+                                            decrement: item.quantity,
+                                        },
+                                    },
+                                })
+                            )
+                        );
                         return res.status(200).json({
                             Message: "Payment successful",
-                            Order: result
+
                         });
 
                     } catch (error) {

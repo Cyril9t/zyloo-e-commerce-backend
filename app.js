@@ -11,6 +11,9 @@ import productItem from "./router/product-item.js";
 import checkOut from "./router/CheckOut.js";
 import Orders from "./router/Orders.js";
 import verify from "./paymentGateWay/verifyPayment.js"
+import passport from "passport";
+import "dotenv/config"
+import "./Oauth2/PassportConfig.js";
 
 const app = express();
 app.use(
@@ -22,9 +25,16 @@ app.use(
 
 const PORT = 8000;
 
+
+
 app.use(urlencoded({ extended: true }));
 
 app.use(express.json());
+
+app.use(passport.initialize())
+
+
+
 
 app.use("/auth", register);
 
