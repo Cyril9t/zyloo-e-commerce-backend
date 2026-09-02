@@ -18,7 +18,7 @@ import "./Oauth2/PassportConfig.js";
 const app = express();
 app.use(
     cors({
-        origin: "https://zyloo-zeta.vercel.app",
+        origin: "https://zyloo-phi.vercel.app/",
         credentials: true
     })
 )
