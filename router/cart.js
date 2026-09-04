@@ -65,15 +65,30 @@ router.get("/cartsItem", async (req, res) => {
     try {
         const user = req.user;
 
+        if (!user) {
+            return res.status(401).json({
+                Message: "Unauthorized"
+            });
+        }
+
         const cart = await prisma.cart.findUnique({
-            where: { userId: user.id },
-            include: {
-                items: true
+            where: {
+                userId: user.id
             }
-        })
+        });
+
+
+        if (!cart) {
+            return res.status(200).json({
+                Message: "Your Cart",
+                cart: []
+            });
+        }
 
         const cartItem = await prisma.cartItem.findMany({
-            where: { cartId: cart.id },
+            where: {
+                cartId: cart.id
+            },
             include: {
                 productItem: {
                     include: {
@@ -81,22 +96,25 @@ router.get("/cartsItem", async (req, res) => {
                             include: {
                                 tags: true
                             }
-                        },
-
+                        }
                     }
                 }
+            }
+        });
 
-            },
-        })
-
-        res.status(200).json({ Message: "Your Cart", cart: cartItem });
+        res.status(200).json({
+            Message: "Your Cart",
+            cart: cartItem
+        });
 
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ Message: "Internal Error" })
-    }
-})
+        console.error(error);
 
+        res.status(500).json({
+            Message: "Internal Error"
+        });
+    }
+});
 
 router.patch("/cartUpdate/:id", async (req, res) => {
     try {
