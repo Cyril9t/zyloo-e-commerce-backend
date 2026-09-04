@@ -79,10 +79,13 @@ router.get("/cartsItem", async (req, res) => {
 
 
         if (!cart) {
-            return res.status(200).json({
-                Message: "Your Cart",
-                cart: []
-            });
+            if (!cart) {
+                cart = await prisma.cart.create({
+                    data: {
+                        userId: user.id
+                    }
+                });
+            }
         }
 
         const cartItem = await prisma.cartItem.findMany({
