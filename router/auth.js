@@ -63,13 +63,13 @@ router.post("/login", async (req, res) => {
         const userInfo = {
             id: user.id, name: user.firstName, email: user.email, role: user.role
         }
+
         res.cookie("token", token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         res.status(200).json({ Message: "Login success", userInfo });
 
     } catch (error) {
