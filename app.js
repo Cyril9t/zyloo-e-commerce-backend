@@ -16,7 +16,7 @@ import "dotenv/config"
 import "./Oauth2/PassportConfig.js";
 
 const app = express();
-const origins = ["https://zyloo-phi.vercel.app", "http://localhost:5173"]
+const origins = ["https://zyloo-teal.vercel.app", "http://localhost:5173"]
 app.use(
     cors({
         origin: origins,
