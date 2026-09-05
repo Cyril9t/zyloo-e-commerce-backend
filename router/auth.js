@@ -104,7 +104,7 @@ router.get("/google", passport.authenticate("google", {
 
 router.get("/google/callback", passport.authenticate("google", {
     session: false,
-    failureRedirect: "http://localhost:5173/login"
+    failureRedirect: "https://zyloo-five.vercel.app/login"
 }),
     async (req, res) => {
         const CreateUser = req.user
@@ -119,7 +119,7 @@ router.get("/google/callback", passport.authenticate("google", {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
-        res.redirect("http://localhost:5173/")
+        res.redirect("https://zyloo-five.vercel.app/")
     }
 )
 
