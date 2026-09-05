@@ -82,7 +82,7 @@ router.post("/checkOuts", async (req, res) => {
         const params = JSON.stringify({
             email,
             amount,
-            callback_url: "http://localhost:5173/verifyPayment"
+            callback_url: "https://zyloo-five.vercel.app/verifyPayment"
 
         });
         //   "https://zyloo-five.vercel.app/verifyPayment"
