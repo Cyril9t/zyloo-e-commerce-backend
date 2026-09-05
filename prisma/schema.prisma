@@ -64,7 +64,7 @@ model Product {
 
   userId String
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   category Category[]
 
@@ -116,7 +116,7 @@ model Cart {
 
   userId String @unique
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   items CartItem[]
 
@@ -151,7 +151,7 @@ model CheckoutAddress {
   state         String
   postalCode    Int
   paymentMethod String
-  OrderItem     Orders @relation(fields: [orderId], references: [id])
+  OrderItem     Orders @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Orders {
@@ -162,7 +162,7 @@ model Orders {
   total     Int
   status    Status            @default(PROCESSING)
   orderDate DateTime          @default(now())
-  user      User              @relation(fields: [userId], references: [id])
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   OderItem  OrderItems[]
   Address   CheckoutAddress[]
 }
@@ -176,7 +176,7 @@ model OrderItems {
   size     String
   quantity Int
   price    Int
-  order    Orders @relation(fields: [orderId], references: [id])
+  order    Orders @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model PendingPayment {

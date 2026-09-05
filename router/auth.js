@@ -124,4 +124,16 @@ router.get("/google/callback", passport.authenticate("google", {
 )
 
 
+router.delete("/deleteUser", async (req, res) => {
+    try {
+        const deleteUser = await prisma.user.delete({
+            where: { email: "cyrilesin214@gmail.com" }
+        })
+
+        res.json(deleteUser)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 export default router;

@@ -78,8 +78,9 @@ router.post("/verifyPayment", async (req, res) => {
 
                         if (
                             response.data.amount !==
-                            pendingPayment.total
+                            pendingPayment.total * 100
                         ) {
+                            console.log(pendingPayment.total * 100, "PAYSTaCK =>:", response.data.amount)
                             return res.status(400).json({
                                 Message:
                                     "Payment amount does not match"
