@@ -82,10 +82,10 @@ router.post("/checkOuts", async (req, res) => {
         const params = JSON.stringify({
             email,
             amount,
-            callback_url:
-                "https://zyloo-five.vercel.app/verifyPayment"
-        });
+            callback_url: "http://localhost:5173/verifyPayment"
 
+        });
+        //   "https://zyloo-five.vercel.app/verifyPayment"
         const options = {
             hostname: "api.paystack.co",
             port: 443,

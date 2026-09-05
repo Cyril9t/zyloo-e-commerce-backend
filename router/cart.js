@@ -80,7 +80,7 @@ router.get("/cartsItem", async (req, res) => {
 
 
         if (!cart) {
-            cart = await prisma.cart.create({
+            await prisma.cart.create({
                 data: {
                     userId: user.id
                 }

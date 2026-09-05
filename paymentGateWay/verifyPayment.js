@@ -243,7 +243,7 @@ router.post("/verifyPayment", async (req, res) => {
                         );
                         return res.status(200).json({
                             Message: "Payment successful",
-
+                            Order: result
                         });
 
                     } catch (error) {
