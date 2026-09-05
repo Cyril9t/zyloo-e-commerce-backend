@@ -70,6 +70,7 @@ router.post("/checkOuts", async (req, res) => {
             const subtotal = productItem.price * i.quantity;
             const discount = subtotal > 300 ? 30 : 0;
             const shipping = subtotal > 250 || subtotal === 0 ? 0 : 20;
+
             const tax = Math.round(subtotal * 0.08);
 
             total += subtotal + shipping + tax - discount;
@@ -85,7 +86,7 @@ router.post("/checkOuts", async (req, res) => {
             callback_url: "https://zyloo-five.vercel.app/verifyPayment"
 
         });
-        //   "https://zyloo-five.vercel.app/verifyPayment"
+
         const options = {
             hostname: "api.paystack.co",
             port: 443,
@@ -138,7 +139,7 @@ router.post("/checkOuts", async (req, res) => {
                                 state,
                                 postalCode,
                                 paymentMethod,
-                                total: amount,
+                                total,
                                 items: item,
                                 status: "PENDING"
                             }
