@@ -9,7 +9,7 @@ import { Role } from "../generated/prisma/index.js";
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: 'http://localhost:8000/auth/google/callback'
+    callbackURL: 'https://zyloo-api-v1.onrender.com/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done,) => {
     try {
 
