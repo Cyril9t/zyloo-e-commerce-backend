@@ -33,7 +33,7 @@ The backend API powering Zyloo, a modern e-commerce platform. It provides authen
 
 ## Tech Stack
 
-Node.js · Express.js · TypeScript · PostgreSQL · Prisma ORM · JWT · Cloudinary · Multer · Paystack
+Node.js · Express.js · JavaScript · PostgreSQL · Prisma ORM · JWT · Cloudinary · Multer · Paystack
 
 ## Project Structure
 
