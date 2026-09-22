@@ -35,11 +35,21 @@ model User {
 
   role Role @default(CUSTOMER)
 
-  cart      Cart?
-  createdAt DateTime  @default(now())
-  products  Product[]
+  cart             Cart?
+  createdAt        DateTime           @default(now())
+  products         Product[]
+  verificationCode VerificationCode[]
+  orders           Orders[]
+}
 
-  orders Orders[]
+model VerificationCode {
+  id        String   @id @default(uuid())
+  code      Int
+  userId    String
+  expiresAt DateTime
+  users     User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Tag {
