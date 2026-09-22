@@ -3,8 +3,8 @@ import prisma from "../prismaConfig/prisma.js";
 import { hashPassword, comparePassword, userToken, verifyToken } from "../lib/userAuth.js";
 import { registerSchema, loginSchema } from "../lib/validate.js";
 import passport from "passport";
-import { date, email } from "zod";
-import { tr } from "zod/v4/locales";
+import "dotenv/config"
+import { verificationEmail } from "../nodemailer/Nodemailer.js";
 
 const router = express.Router();
 
@@ -33,6 +33,11 @@ router.post("/register", async (req, res) => {
             }
         });
 
+        await prisma.verificationCode.create({
+            data: {
+                code: 3, expiresAt: new Date(Date.now() + 10 * 1000), userId: user.id
+            }
+        })
         res.status(201).json({ Message: "Registration successful" });
 
     } catch (error) {
@@ -52,7 +57,16 @@ router.post("/login", async (req, res) => {
         // if (!email | !password) return res.status(400).json({ Message: "Input fields are required " });
 
         const user = await prisma.user.findUnique({
-            where: { email }
+            where: { email },
+            include: {
+                verificationCode: {
+                    select: { id: true },
+                    orderBy: {
+                        id: "desc"
+                    },
+                    take: 1
+                }
+            }
         })
 
         if (!user) return res.status(404).json({ Message: "User not exist" });
@@ -63,11 +77,17 @@ router.post("/login", async (req, res) => {
 
         const code = Math.floor(100000 + Math.random() * 900000);
 
-        await prisma.verificationCode.create({
+        const verificationID = user.verificationCode.map((id) => ({ id: id.id }))[0].id
+        await prisma.verificationCode.update({
+            where: { userId: user.id, id: verificationID },
             data: {
                 code, expiresAt: new Date(Date.now() + 10 * 1000), userId: user.id
             }
         })
+
+        verificationEmail(code, user.email, user.firstName)
+
+        console.log(code)
 
         res.status(200).json({ Message: "Login success" });
 
@@ -97,6 +117,10 @@ router.put("/sendVerificationCode", async (req, res) => {
                 }
             }
         })
+
+
+        if (!findExistUser) return res.status(404).json({ Message: "Please login" })
+
         const verificationId = findExistUser.verificationCode.map((id) => ({ id: id.id }))[0].id
 
         await prisma.verificationCode.update({
@@ -105,6 +129,10 @@ router.put("/sendVerificationCode", async (req, res) => {
                 code, expiresAt: new Date(Date.now() + 10 * 1000),
             }
         })
+
+        console.log(code)
+
+        verificationEmail(code, findExistUser.email, findExistUser.firstName)
 
         res.status(201).json({ Message: `A 6 digit verification code sent to this email "${email}"` })
 
@@ -143,9 +171,11 @@ router.post("/verifyCode", async (req, res) => {
             where: { userId: findUniqueUser.id, id: id, }
         })
 
+        console.log(code, verification.code)
+
         if (code !== verification.code) {
 
-            return res.status(400).json({ Message: "Invalid Code" })
+            return res.status(400).json({ Message: "Invalid Code", })
         }
 
         const user = findUniqueUser
@@ -166,7 +196,7 @@ router.post("/verifyCode", async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ Message: "server error" })
+        res.status(500).json({ Message: "server error", userInfo })
     }
 })
 
