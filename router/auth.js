@@ -86,7 +86,7 @@ router.post("/login", async (req, res) => {
             }
         })
 
-        // verificationEmail(code, user.email, user.firstName)
+        verificationEmail(code, user.email, user.firstName)
 
         console.log(code)
 
