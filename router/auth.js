@@ -77,7 +77,8 @@ router.post("/login", async (req, res) => {
 
         const code = Math.floor(100000 + Math.random() * 900000);
 
-        const verificationID = user.verificationCode.map((id) => ({ id: id.id }))[0].id
+        const verificationID = user.verificationCode.map((id) => ({ id: id.id }))[0].id;
+
         await prisma.verificationCode.update({
             where: { userId: user.id, id: verificationID },
             data: {
@@ -85,11 +86,11 @@ router.post("/login", async (req, res) => {
             }
         })
 
-        verificationEmail(code, user.email, user.firstName)
+        // verificationEmail(code, user.email, user.firstName)
 
         console.log(code)
 
-        res.status(200).json({ Message: "Login success" });
+        res.status(200).json({ Message: "Login success", userEmail: user.email });
 
     } catch (error) {
         console.log(error);
@@ -97,7 +98,7 @@ router.post("/login", async (req, res) => {
     }
 })
 
-router.put("/sendVerificationCode", async (req, res) => {
+router.put("/resendOtp", async (req, res) => {
     try {
         const { email } = req.body
 
@@ -142,9 +143,11 @@ router.put("/sendVerificationCode", async (req, res) => {
     }
 })
 
-router.post("/verifyCode", async (req, res) => {
+router.post("/verifyOTP", async (req, res) => {
     try {
         const { code, email } = req.body
+
+        if (!code || !email) return res.status(400).json({ Message: "Code Required" })
 
         const findUniqueUser = await prisma.user.findUnique({
             where: { email },
@@ -163,6 +166,8 @@ router.post("/verifyCode", async (req, res) => {
             },
 
         })
+        console.log(email);
+        if (!findUniqueUser) return res.status(401).json({ Message: "Invalid Email" })
 
         const getVerifyCode = findUniqueUser.verificationCode.map((id) => ({ id: id.id }));
         const id = getVerifyCode.map((id) => id)[0].id;
@@ -170,6 +175,7 @@ router.post("/verifyCode", async (req, res) => {
         const verification = await prisma.verificationCode.findUnique({
             where: { userId: findUniqueUser.id, id: id, }
         })
+
 
         console.log(code, verification.code)
 
@@ -196,7 +202,7 @@ router.post("/verifyCode", async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ Message: "server error", userInfo })
+        res.status(500).json({ Message: "server error" })
     }
 })
 
