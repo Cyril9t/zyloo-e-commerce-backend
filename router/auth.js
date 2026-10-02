@@ -4,7 +4,7 @@ import { hashPassword, comparePassword, userToken, verifyToken } from "../lib/us
 import { registerSchema, loginSchema } from "../lib/validate.js";
 import passport from "passport";
 import "dotenv/config"
-import { verificationEmail } from "../nodemailer/Nodemailer.js";
+import { verificationEmail } from "../Email/MailUser.js";
 
 const router = express.Router();
 
@@ -86,7 +86,7 @@ router.post("/login", async (req, res) => {
             }
         })
 
-        // verificationEmail(code, user.email, user.firstName)
+        await verificationEmail(code, user.email, user.firstName)
 
 
 
@@ -146,7 +146,7 @@ router.put("/resendOtp", async (req, res) => {
 
         console.log(code)
 
-        verificationEmail(code, findExistUser.email, findExistUser.firstName)
+        await verificationEmail(code, findExistUser.email, findExistUser.firstName)
 
         res.status(201).json({ Message: `A 6 digit verification code sent to this email "${email}"` })
 

@@ -1,22 +1,19 @@
-import nodemailer from "nodemailer"
 import "dotenv/config"
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASS,
-  }
-})
+export const verificationEmail = async (verificationCode, userEmail, userName) => {
 
-
-export const verificationEmail = (verificationCode, userEmail, userName) => {
-
-  transporter.sendMail({
-    from: process.env.EMAIL,
-    to: userEmail,
-    subject: "Verify your Zyloo account",
-    html: `
+  try {
+    const response = await fetch("https://sendlib.samueltuoyo.com/api/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.SENDLIB}`,
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL,
+        to: userEmail,
+        subject: "Verify your Zyloo account",
+        html: `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -250,5 +247,17 @@ export const verificationEmail = (verificationCode, userEmail, userName) => {
       </body>
       </html>
     `,
-  })
+      }),
+
+    });
+
+
+    const data = await response.json()
+    console.log(data)
+
+
+  } catch (error) {
+    console.log(error)
+  }
+
 };

@@ -2,3 +2,5 @@ allowBuilds:
   '@prisma/engines': true
   bcrypt: true
   prisma: true
+minimumReleaseAgeExclude:
+  - resend@6.32.0
