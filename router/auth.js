@@ -86,21 +86,21 @@ router.post("/login", async (req, res) => {
             }
         })
 
-        await verificationEmail(code, user.email, user.firstName)
+        // await verificationEmail(code, user.email, user.firstName)
 
 
 
-        const token = await userToken({ id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role });
+        // const token = await userToken({ id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role });
         const userInfo = {
             id: user.id, name: user.firstName, email: user.email, role: user.role
         }
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     secure: true,
+        //     sameSite: "none",
+        //     maxAge: 7 * 24 * 60 * 60 * 1000
+        // });
 
 
         res.status(200).json({ Message: "Login success", userInfo });
@@ -179,7 +179,7 @@ router.post("/verifyOTP", async (req, res) => {
             },
 
         })
-        console.log(email);
+
         if (!findUniqueUser) return res.status(401).json({ Message: "Invalid Email" })
 
         const getVerifyCode = findUniqueUser.verificationCode.map((id) => ({ id: id.id }));
@@ -188,9 +188,6 @@ router.post("/verifyOTP", async (req, res) => {
         const verification = await prisma.verificationCode.findUnique({
             where: { userId: findUniqueUser.id, id: id, }
         })
-
-
-        console.log(code, verification.code)
 
         if (code !== verification.code) {
 
