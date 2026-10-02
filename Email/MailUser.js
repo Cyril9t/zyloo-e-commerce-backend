@@ -253,7 +253,12 @@ export const verificationEmail = async (verificationCode, userEmail, userName) =
 
 
     const data = await response.json()
-    console.log(data)
+
+    if (!data.success) {
+
+      console.error("email not sent", data)
+      return
+    }
 
 
   } catch (error) {

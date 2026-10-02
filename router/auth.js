@@ -1,6 +1,6 @@
 import express from "express"
 import prisma from "../prismaConfig/prisma.js";
-import { hashPassword, comparePassword, userToken, verifyToken } from "../lib/userAuth.js";
+import { hashPassword, comparePassword, userToken, } from "../lib/userAuth.js";
 import { registerSchema, loginSchema } from "../lib/validate.js";
 import passport from "passport";
 import "dotenv/config"
@@ -148,7 +148,7 @@ router.put("/resendOtp", async (req, res) => {
 
         await verificationEmail(code, findExistUser.email, findExistUser.firstName)
 
-        res.status(201).json({ Message: `A 6 digit verification code sent to this email "${email}"` })
+        res.status(201).json({ Message: `A 6 digit verification code sent to this email "${findExistUser.email}"` })
 
     } catch (error) {
         console.log(error)
@@ -269,6 +269,56 @@ router.delete("/deleteUser", async (req, res) => {
         })
 
         res.json(deleteUser)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+router.post("/forgotPassword", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) return res.json({ Message: "Email required" })
+        const findUser = await prisma.user.findUnique({
+            where: { email }
+        })
+
+        if (!findUser) return res.status(400).json({ Message: "User with this email not found" })
+        const code = Math.floor(100000 + Math.random() * 90000)
+
+        await verificationEmail(code, findUser.email, findUser.firstName)
+
+        res.status(201).json({ Message: `A 6 digit verification code sent to this email "${findUser.email}"` })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ Message: "Server Error" })
+    }
+})
+
+
+router.post("/reset-password", async (req, res) => {
+    try {
+        const { email, password } = req.body
+
+        if (!email) return res.json({ Message: "Email required" })
+
+        const findUser = await prisma.user.findUnique({
+            where: { email }
+        })
+
+        if (!findUser) return res.status(400).json({ Message: "User with this email not found" })
+
+        const hash = await hashPassword(password)
+
+        await prisma.user.update({
+            where: { email },
+            password: hash
+        })
+
+        res.json({ Message: "Password Updated Successfully" })
+
     } catch (error) {
         console.log(error)
     }
