@@ -86,8 +86,7 @@ router.post("/login", async (req, res) => {
             }
         })
 
-        // await verificationEmail(code, user.email, user.firstName)
-
+        await verificationEmail(code, user.email, user.firstName)
 
 
         // const token = await userToken({ id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role });
@@ -308,13 +307,17 @@ router.post("/reset-password", async (req, res) => {
             where: { email }
         })
 
+        console.log(password)
+
         if (!findUser) return res.status(400).json({ Message: "User with this email not found" })
 
         const hash = await hashPassword(password)
 
         await prisma.user.update({
             where: { email },
-            password: hash
+            data: {
+                password: hash
+            }
         })
 
         res.json({ Message: "Password Updated Successfully" })
