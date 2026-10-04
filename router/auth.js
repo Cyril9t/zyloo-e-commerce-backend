@@ -279,14 +279,37 @@ router.post("/forgotPassword", async (req, res) => {
         const { email } = req.body;
 
         if (!email) return res.json({ Message: "Email required" })
-        const findUser = await prisma.user.findUnique({
-            where: { email }
+
+        const findExistUser = await prisma.user.findUnique({
+            where: { email },
+            include: {
+                verificationCode: {
+                    select: {
+                        id: true
+                    },
+                    orderBy: {
+                        id: "desc",
+                    },
+                    take: 1
+                }
+            }
         })
 
-        if (!findUser) return res.status(400).json({ Message: "User with this email not found" })
+
+        if (!findExistUser) return res.status(400).json({ Message: "User with this email not found" })
         const code = Math.floor(100000 + Math.random() * 90000)
 
-        await verificationEmail(code, findUser.email, findUser.firstName)
+        const verificationId = findExistUser.verificationCode.map((id) => ({ id: id.id }))[0].id
+
+        await prisma.verificationCode.update({
+            where: { id: verificationId, userId: findExistUser.id },
+            data: {
+                code, expiresAt: new Date(Date.now() + 10 * 1000),
+            }
+        })
+
+        await verificationEmail(code, findExistUser.email, findExistUser.firstName)
+
 
         res.status(201).json({ Message: `A 6 digit verification code sent to this email "${findUser.email}"` })
 
