@@ -311,11 +311,11 @@ router.post("/forgotPassword", async (req, res) => {
         await verificationEmail(code, findExistUser.email, findExistUser.firstName)
 
 
-        res.status(201).json({ Message: `A 6 digit verification code sent to this email "${findUser.email}"` })
+        res.status(201).json({ Message: `A 6 digit verification code sent to this email "${findExistUser.email}"` })
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ Message: "Server Error" })
+        res.status(500).json({ Message: "Server Error please try again" })
     }
 })
 
